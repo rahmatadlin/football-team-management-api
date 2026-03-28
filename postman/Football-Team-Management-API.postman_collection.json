@@ -1,0 +1,303 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Football Team Management API",
+    "description": "Koleksi untuk API manajemen tim sepak bola (Gin + JWT).\n\n**Setup:**\n1. Jalankan API (`go run ./cmd/api`).\n2. Isi variabel `baseUrl` jika perlu.\n3. Jalankan **Auth → Login**; token akan disimpan ke variabel `token`.\n4. Isi `teamId`, `teamId2`, `playerId`, `matchId` setelah membuat data, atau gunakan UUID dari respons seed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "teamId", "value": "" },
+    { "key": "teamId2", "value": "" },
+    { "key": "playerId", "value": "" },
+    { "key": "matchId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && j.data.access_token) {",
+                  "  pm.collectionVariables.set('token', j.data.access_token);",
+                  "  console.log('Token disimpan ke variabel koleksi: token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "Default credential dari `.env` / seed. Setelah sukses, token otomatis tersimpan."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "List teams",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/teams"
+          }
+        },
+        {
+          "name": "Create team A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && j.data.id) {",
+                  "  pm.collectionVariables.set('teamId', j.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"FC Postman A\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"founded_year\": 2020,\n  \"address\": \"Jl. Test 1\",\n  \"city\": \"Jakarta\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/teams"
+          }
+        },
+        {
+          "name": "Create team B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && j.data.id) {",
+                  "  pm.collectionVariables.set('teamId2', j.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"FC Postman B\",\n  \"logo_url\": \"https://example.com/logo2.png\",\n  \"founded_year\": 2021,\n  \"address\": \"Jl. Test 2\",\n  \"city\": \"Bandung\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/teams"
+          }
+        },
+        {
+          "name": "Get team by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/teams/{{teamId}}"
+          }
+        },
+        {
+          "name": "Update team",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"FC Postman Updated\",\n  \"city\": \"Bandung\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/teams/{{teamId}}"
+          }
+        },
+        {
+          "name": "Delete team (soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/teams/{{teamId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Players",
+      "item": [
+        {
+          "name": "List players by team",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/teams/{{teamId}}/players"
+          }
+        },
+        {
+          "name": "Create player",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && j.data.id) {",
+                  "  pm.collectionVariables.set('playerId', j.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Striker Demo\",\n  \"height\": 175.5,\n  \"weight\": 72,\n  \"position\": \"striker\",\n  \"jersey_number\": 9\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/teams/{{teamId}}/players"
+          }
+        },
+        {
+          "name": "Update player",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Striker Demo Updated\",\n  \"jersey_number\": 10\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/players/{{playerId}}"
+          }
+        },
+        {
+          "name": "Delete player (soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/players/{{playerId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matches",
+      "item": [
+        {
+          "name": "List schedules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && Array.isArray(j.data) && j.data[0] && j.data[0].id) {",
+                  "  pm.collectionVariables.set('matchId', j.data[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/matches/schedules"
+          }
+        },
+        {
+          "name": "Create schedule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j && j.data && j.data.id) {",
+                  "  pm.collectionVariables.set('matchId', j.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"match_date\": \"2026-05-01\",\n  \"match_time\": \"15:30:00\",\n  \"home_team_id\": \"{{teamId}}\",\n  \"away_team_id\": \"{{teamId2}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/matches/schedules",
+            "description": "Isi `teamId` dan `teamId2` dengan UUID tim berbeda. Buat dua tim dulu atau salin dari List teams."
+          }
+        },
+        {
+          "name": "Submit match result",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"home_score\": 1,\n  \"away_score\": 1,\n  \"goals\": [\n    { \"player_id\": \"{{playerId}}\", \"goal_time\": 12 },\n    { \"player_id\": \"{{playerId}}\", \"goal_time\": 78 }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/matches/{{matchId}}/results",
+            "description": "`player_id` harus pemain tim kandang atau tandang pada pertandingan ini."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report",
+      "item": [
+        {
+          "name": "Match report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/matches/{{matchId}}/report",
+            "description": "Membutuhkan pertandingan yang sudah punya hasil."
+          }
+        }
+      ]
+    }
+  ]
+}
